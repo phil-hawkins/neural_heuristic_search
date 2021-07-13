@@ -1,0 +1,27 @@
+name: truss_heuristic
+channels:
+  - pytorch
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.8
+  - cudatoolkit=10.1
+  - pytorch::pytorch=1.7.1
+  - tensorboard
+  - ipykernel
+  - absl-py
+  - box2d-py
+  - gym
+  - pytest
+  - pandas
+  - tabulate
+  - matplotlib
+  - psutil
+  - pip
+  - pip:
+    - --find-links https://pytorch-geometric.com/whl/torch-1.7.0+cu101.html
+    - torch-scatter
+    - torch-sparse
+    - torch-cluster
+    - torch-spline-conv
+    - torch-geometric
