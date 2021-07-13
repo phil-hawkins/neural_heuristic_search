@@ -1,4 +1,7 @@
-from gym.envs.classic_control import rendering
+try:
+    from gym.envs.classic_control import rendering
+except:
+    print("unable to import rendering library, running headless")
 import math
 
 
