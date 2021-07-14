@@ -243,7 +243,7 @@ def search(root, epsilon=0., eps=10000, max_memory=16, template=None):
                 'timed_out': timer.is_timed_out,
                 'out_of_resources' : is_out_of_resources(),
                 'path': current.get_action_path(),
-                'goal_complete': current.is_goal
+                'goal_complete': str(current.is_goal)
             }
                 
             return current, stats
