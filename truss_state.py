@@ -640,7 +640,7 @@ class BreakableTrussState(TrussState):
 
     @property
     def is_complete(self):
-        return self._span_remaining == 0 and self.get_unbraced_dist() == 0
+        return bool(self._span_remaining == 0 and self.get_unbraced_dist() == 0)
 
     @property
     def cannon_str(self):
