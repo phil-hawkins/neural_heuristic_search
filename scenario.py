@@ -94,7 +94,7 @@ def plan_path(start_state, greedy, heuristic, render,
     end_state, stats = search(root, eps=eps)
     
     if timeout and stats['time'] > timeout:
-        logging.debug("Timed out after {} seconds".format(cumulative_stats['time']))
+        logging.debug("Timed out after {} seconds".format(stats['time']))
     else:
         logging.debug("Search took {} seconds".format(stats['time']))
         logging.debug("Action path {}".format(stats['path']))   
