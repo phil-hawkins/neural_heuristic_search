@@ -30,7 +30,7 @@ FLAGS = flags.FLAGS
 flags.DEFINE_boolean('debug', False, 'show debug logging messages')
 flags.DEFINE_integer('target_dist', 3, 'triangular lattice manhattan distance to target')
 flags.DEFINE_float('epsilon', 0., 'probability of random node vs greedy selection in search')
-flags.DEFINE_integer('timeout', 180, 'end path planning after this many seconds or no limmit if 0')
+flags.DEFINE_integer('timeout', 0, 'end path planning after this many seconds or no limmit if 0')
 flags.DEFINE_integer('eps', 0, 'upper bound on the number of expansions to do per stage. Unlimmited if 0')
 flags.DEFINE_integer('max_scenarios', 0, 'upper bound on the number of scenarios to run. Unlimmited if 0')
 flags.DEFINE_string('result_file', './logs/results.json', 'output file for results')

@@ -160,7 +160,7 @@ def main(_argv):
 
         writer.flush()
     writer.close()
-    copyfile(checkpoint_fp, "logs/{}.pt".format(FLAGS.config))
+    copyfile(checkpoint_fp, "models/{}.pt".format(FLAGS.config))
     
 
 if __name__ == '__main__':
