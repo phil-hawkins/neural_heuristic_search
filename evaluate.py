@@ -24,8 +24,7 @@ import psutil
 #from memory_profiler import profile
 
 from scenario import plan_path
-from environment.truss_env import SpanTruss_GymEnv
-from truss_state import TrussState
+from truss_state import BreakableTrussState
 
 FLAGS = flags.FLAGS
 flags.DEFINE_boolean('debug', False, 'show debug logging messages')
@@ -54,7 +53,7 @@ def main(_argv):
 
     # generate the scenario configurations
     logging.info("Target distance {}".format(FLAGS.target_dist))
-    start_configs = TrussState.get_start_configs(FLAGS.target_dist)
+    start_configs = BreakableTrussState.get_start_configs(FLAGS.target_dist)
     shuffle(start_configs)
     if FLAGS.max_scenarios > 0:
         start_configs = start_configs[:FLAGS.max_scenarios]
