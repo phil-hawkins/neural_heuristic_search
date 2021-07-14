@@ -110,7 +110,7 @@ def main(_argv):
 
     job_id = FLAGS.job_id if FLAGS.job_id != '' else "{}_{}".format(FLAGS.config, int(time()))
     log_dir = os.path.join(FLAGS.root_log, job_id)
-    checkpoint_fp = os.path.join(log_dir, "checkpoint.pt")
+    checkpoint_fp = os.path.join(log_dir, "{}.pt".format(FLAGS.config))
     best_metric = inf
     writer = SummaryWriter(log_dir=log_dir)
     writer.add_text(tag='model args', text_string=str(model_args))
