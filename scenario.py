@@ -137,7 +137,6 @@ if __name__ == '__main__':
     flags.DEFINE_integer('eps', 0, 'number of expansions to do per stage. Unlimmited if 0')
     flags.DEFINE_integer('target_dist', 2, 'triangular lattice manhattan distance to target')
     flags.DEFINE_string('log_file_path', "./logs/astar_log.json", 'result statistics log file')
-    flags.DEFINE_string('train_example_path', "./logs/h_net_train.pkl", 'training examples output file')
     flags.DEFINE_string('model_config', "LGC", 'nueral net configutation arguments')
     flags.DEFINE_integer('batch_size', 32, 'network input batch size')
     flags.DEFINE_boolean('render', True, 'display the build steps')

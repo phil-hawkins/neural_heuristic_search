@@ -1,7 +1,7 @@
 import os,sys
 sys.path.insert(0, os.path.abspath('.'))
 import torch
-from torch.nn import Module, ModuleList, Linear, Hardswish
+from torch.nn import Module, ModuleList, Linear, ReLU
 from torch_geometric.nn import GATConv, GCNConv, GINConv, GMMConv #, GlobalAttention
 from torch_scatter import scatter_mean
 from models.utils import MLP, scatter_slots
@@ -92,7 +92,7 @@ class ResBlock(Module):
         GCM = args['graph_conv']
         self._gc1 = GCM(args)
         self._gc2 = GCM(args)
-        self._nl = Hardswish()
+        self._nl = ReLU()
 
     def forward(self, x, edge_index, edge_slot, edge_attr, u, batch):
         out = self._gc1(x, edge_index, edge_slot, edge_attr, u, batch)

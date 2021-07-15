@@ -8,11 +8,11 @@ class MLP(nn.Module):
         super().__init__()
         self._mlist = nn.ModuleList([
             nn.Linear(in_features, hidden_dims),
-            nn.Hardswish()
+            nn.ReLU()
         ])
         for _ in range(hidden_layers):
             self._mlist.append(nn.Linear(hidden_dims, hidden_dims))
-            self._mlist.append(nn.Hardswish())
+            self._mlist.append(nn.ReLU())
         self._mlist.append(nn.Linear(hidden_dims, out_features))
 
     def forward(self, x):
