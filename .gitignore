@@ -3,3 +3,4 @@
 .vscode/launch.json
 .vscode/settings.json
 evaluation/table_gen.py
+data/*.pkl

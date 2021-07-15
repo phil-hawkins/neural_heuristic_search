@@ -1,4 +1,4 @@
-name: truss_heuristic
+name: neural_heuristic_search
 channels:
   - pytorch
   - defaults

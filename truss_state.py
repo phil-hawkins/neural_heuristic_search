@@ -4,6 +4,7 @@ import numpy as np
 import torch
 from copy import deepcopy
 from operator import itemgetter
+import random
 
 from graph_data import GraphData
 
@@ -22,6 +23,7 @@ class Node():
         self.pinned = pinned
         self.target_dist = None
         self.polar = None
+        self.damaged = False
 
     @classmethod
     def create_truss_node(cls, row, col, pinned, target, polar):
@@ -208,7 +210,7 @@ class TrussState():
             geo = self.__class__.state_to_env(self._origin, n.row, n.col)
             return tuple(geo)
 
-        return [(node_to_env(n), n.pinned) for n in self._nodes]
+        return [(node_to_env(n), n.pinned, n.damaged) for n in self._nodes]
 
     def edge_geometry(self):
         """
@@ -467,6 +469,28 @@ class TrussState():
 
         return len(self._nodes) - 1
 
+    def _recipricol_edge(self, edge_ndx):
+        e = tuple(np.flip(self._edge_index[:, edge_ndx]))
+        return self._strut_locs[e]
+
+    def damage_random_node(self):
+        """
+        Marks a random node as damaged
+
+        Returns:
+            True if a node was found to damage otherwise false
+        """
+        def is_damageable(n):
+            return not n.damaged and not n.pinned and n.target_dist is not None and n.target_dist > 0
+
+        nodes = [n for n in self._nodes if is_damageable(n)]
+        if nodes:
+            dn = random.choice(nodes)
+            dn.damaged = True
+            return True
+        else:
+            return False
+
     def action_update(self, action):
         """
         adds a new strut to the node given in the action arg
@@ -552,16 +576,23 @@ class BreakableTrussState(TrussState):
 
         return cls(nodes, edge_index, edge_slots, target, origin)
 
-    def get_braced_edges(self):
+    def get_braced_edges(self, check_damaged=False):
         """
         Returns:
             a bool mask of edges, True where they participate in bracing 
             triangles although these are not necessarily stabily connected to 
             the pinned nodes and therefore not stabily braced
         """
+        if check_damaged:
+            damaged_nodes = [i for i, n in enumerate(self._nodes) if n.damaged]
+            test_edge_mask = ~np.isin(self._edge_index, damaged_nodes).any(axis=0)
+            test_edge_index = self._edge_index[:, test_edge_mask]
+        else:
+            test_edge_index = self._edge_index
+
         adj = torch.sparse_coo_tensor(
-            indices=self._edge_index, 
-            values=torch.ones(self._edge_index.shape[1]), 
+            indices=test_edge_index, 
+            values=torch.ones(test_edge_index.shape[1]), 
             size=(self.num_nodes, self.num_nodes)
         ).to_dense()
         bracing = adj.matmul(adj) * adj
@@ -574,13 +605,13 @@ class BreakableTrussState(TrussState):
         nodes = [ni for ni in range(self.num_nodes) if self._nodes[ni].pinned]
         return nodes
 
-    def get_braced_nodes(self):
+    def get_braced_nodes(self, check_damaged=False):
         """
         Returns:
             set of indicies of nodes that are stabily braced against the 
             statically pinned nodes
         """
-        braced_edges = self.get_braced_edges()
+        braced_edges = self.get_braced_edges(check_damaged)
         queue = self.pinned_nodes
         braced_nodes = set(queue)
         node_bracing = {}
@@ -602,12 +633,12 @@ class BreakableTrussState(TrussState):
 
         return braced_nodes
 
-    def get_unbraced_dist(self):
+    def get_unbraced_dist(self, check_damaged=False):
         """
         Returns:
             maximum distance of an unbraced node from the braced structure
         """
-        bnl = list(self.get_braced_nodes())
+        bnl = list(self.get_braced_nodes(check_damaged))
         queue = bnl
         braced_nodes = np.zeros(self.num_nodes, dtype=np.bool)
         braced_nodes[bnl] = True
@@ -640,7 +671,7 @@ class BreakableTrussState(TrussState):
 
     @property
     def is_complete(self):
-        return bool(self._span_remaining == 0 and self.get_unbraced_dist() == 0)
+        return bool(self._span_remaining == 0 and self.get_unbraced_dist(check_damaged=True) == 0)
 
     @property
     def cannon_str(self):

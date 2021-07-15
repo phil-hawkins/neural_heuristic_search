@@ -12,8 +12,9 @@ class View():
     unit_per_m = 1
     body_colours = {
         'node' : ((121/256, 109/256, 214/256), (35/256, 22/256, 138/256)),
+        'damaged_node' : ((1, 0, 0), (35/256, 22/256, 138/256)),
         'target' : (0, 0, 0),
-        'strut' : (0, 0, 0),
+        'spoke' : (0, 0, 0),
         'support' : ((93/256, 125/256, 57/256), (57/256, 82/256, 29/256))
     }
     node_radius = 0.1
@@ -47,7 +48,8 @@ class View():
         # show spokes
         for epos in state.edge_geometry():
             start, end = epos
-            self._viewer.draw_line(start, end, color=self.body_colours['strut']).add_attr(rendering.LineWidth(1))
+            colour = self.body_colours['spoke']
+            self._viewer.draw_line(start, end, color=colour).add_attr(rendering.LineWidth(1))
             
         # show hubs
         pin_shape = [(0, 0), (-self.pin_w, -self.pin_h), (self.pin_w, -self.pin_h)]
@@ -56,15 +58,16 @@ class View():
             ang = (2*i+1) * math.pi / 6
             hub_shape.append((math.cos(ang)*self.node_radius, math.sin(ang)*self.node_radius))
         for n in state.node_geometry():
-            npos, pinned = n
+            npos, pinned, damaged = n
             t = rendering.Transform(translation=npos)
             if pinned:
                 # draw pin
                 self._viewer.draw_polygon(v=pin_shape, color=self.body_colours['support'][0]).add_attr(t)
                 self._viewer.draw_polygon(v=pin_shape, color=self.body_colours['support'][1], filled=False, linewidth=2).add_attr(t)
             # draw hub
-            self._viewer.draw_polygon(v=hub_shape, color=self.body_colours['node'][0]).add_attr(t)
-            self._viewer.draw_polygon(v=hub_shape, color=self.body_colours['node'][1], filled=False, linewidth=2).add_attr(t)
+            colour = self.body_colours['damaged_node'] if damaged else self.body_colours['node']
+            self._viewer.draw_polygon(v=hub_shape, color=colour[0]).add_attr(t)
+            self._viewer.draw_polygon(v=hub_shape, color=colour[1], filled=False, linewidth=2).add_attr(t)
 
         self._window_still_open = self._viewer.render()
 
