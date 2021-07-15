@@ -109,7 +109,7 @@ def plan_path(start_state, greedy, heuristic, render,
     stats['scene_config'] = root.scene_config
 
     if return_examples:
-        return root.get_train_examples(stats['path']) if stats['goal_complete'] else []
+        return root.get_train_examples(stats['path']) if stats['goal_complete'] else [], end_state._state
     else:
         return stats
 

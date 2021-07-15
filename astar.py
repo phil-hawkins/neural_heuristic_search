@@ -33,6 +33,8 @@ class AStarNode():
 
         if self.__class__.heuristic == 'Manhattan':
             self._h = self._state.min_manhattan_distance
+        elif self.__class__.heuristic == 'ManhattanBraced':
+            self._h = self._state.min_manhattan_braced_distance
         elif self.__class__.heuristic == 'Euclidean':
             self._h = self._state.min_euclidean_distance
         elif self.__class__.heuristic == 'Mean':

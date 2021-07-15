@@ -378,6 +378,7 @@ class TrussState():
             n.pinned, 
             n.polar.rho, 
             n.polar.phi
+            #n.damaged
         ) for n in self._nodes])
 
         if reflect:           
@@ -472,24 +473,6 @@ class TrussState():
     def _recipricol_edge(self, edge_ndx):
         e = tuple(np.flip(self._edge_index[:, edge_ndx]))
         return self._strut_locs[e]
-
-    def damage_random_node(self):
-        """
-        Marks a random node as damaged
-
-        Returns:
-            True if a node was found to damage otherwise false
-        """
-        def is_damageable(n):
-            return not n.damaged and not n.pinned and n.target_dist is not None and n.target_dist > 0
-
-        nodes = [n for n in self._nodes if is_damageable(n)]
-        if nodes:
-            dn = random.choice(nodes)
-            dn.damaged = True
-            return True
-        else:
-            return False
 
     def action_update(self, action):
         """
@@ -669,9 +652,9 @@ class BreakableTrussState(TrussState):
     def is_valid(self):
         return not self.is_broken()
 
-    @property
-    def is_complete(self):
-        return bool(self._span_remaining == 0 and self.get_unbraced_dist(check_damaged=True) == 0)
+    # @property
+    # def is_complete(self):
+    #     return bool(self._span_remaining == 0 and self.get_unbraced_dist(check_damaged=True) == 0)
 
     @property
     def cannon_str(self):
@@ -705,3 +688,31 @@ class BreakableTrussState(TrussState):
             env.append(tuple(npos.tolist()))
 
         return env
+
+    def damage_random_node(self):
+        """
+        Marks a random node as damaged
+
+        Returns:
+            True if a node was found to damage otherwise false
+        """
+        def is_damageable(n):
+            return not n.damaged and not n.pinned and n.target_dist is not None and n.target_dist > 0
+
+        nodes = [n for n in self._nodes if is_damageable(n)]
+        if nodes:
+            dn = random.choice(nodes)
+            dn.damaged = True
+            return True
+        else:
+            return False
+
+    @property
+    def min_manhattan_braced_distance(self):
+        """
+        Gets the minimum Manhattan distance from braced nodes to the goal
+        """
+        bn_ndx = list(self.get_braced_nodes(check_damaged=True))
+        span_remaining = min([self._nodes[n_i].target_dist for n_i in bn_ndx])
+
+        return span_remaining
