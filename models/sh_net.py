@@ -2,7 +2,8 @@ import os,sys
 sys.path.insert(0, os.path.abspath('.'))
 import torch
 from torch.nn import Module, ModuleList, Linear, Hardswish
-from torch_geometric.nn import GATConv, GCNConv, GINConv, GMMConv, GlobalAttention
+from torch_geometric.nn import GATConv, GCNConv, GINConv, GMMConv #, GlobalAttention
+from torch_scatter import scatter_mean
 from models.utils import MLP, scatter_slots
 from math import pi
 
@@ -112,19 +113,25 @@ class SHNet(Module):
             self._trunk.append(ResBlock(args))
 
         self._node_lin = Linear(args['node_attr_in'], args['node_dims'])
-        gate_nn = MLP(
-            in_features=args['node_dims'],
-            hidden_dims=args['gate_hdims'],
-            hidden_layers=args['gate_hlayers'],
-            out_features=1
-        )
-        nn = MLP(
+        # gate_nn = MLP(
+        #     in_features=args['node_dims'],
+        #     hidden_dims=args['gate_hdims'],
+        #     hidden_layers=args['gate_hlayers'],
+        #     out_features=1
+        # )
+        # nn = MLP(
+        #     in_features=args['node_dims'],
+        #     hidden_dims=args['heuristic_readout_hdims'],
+        #     hidden_layers=args['heuristic_readout_hlayers'],
+        #     out_features=1
+        # )
+        # self._attn = GlobalAttention(gate_nn=gate_nn, nn=nn)
+        self._heuristic_readout = MLP(
             in_features=args['node_dims'],
             hidden_dims=args['heuristic_readout_hdims'],
             hidden_layers=args['heuristic_readout_hlayers'],
             out_features=1
         )
-        self._attn = GlobalAttention(gate_nn=gate_nn, nn=nn)
         
     def forward(self, g):
         """
@@ -144,6 +151,9 @@ class SHNet(Module):
                 batch=g.node_batch
             )
 
-        h = self._attn(x=x, batch=g.node_batch)
+        #h = self._attn(x=x, batch=g.node_batch)
+        h = self._heuristic_readout(x)
+        # global mean pooling
+        h = scatter_mean(h, g.node_batch, dim=0)
 
         return h
