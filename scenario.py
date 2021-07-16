@@ -141,7 +141,7 @@ if __name__ == '__main__':
     flags.DEFINE_integer('batch_size', 32, 'network input batch size')
     flags.DEFINE_boolean('render', True, 'display the build steps')
     flags.DEFINE_string('checkpoint', None, 'nueral net parameter checkpoint')
-    flags.DEFINE_boolean('greedy', False, 'use greedy search')
+    flags.DEFINE_boolean('greedy', True, 'use greedy search')
     flags.DEFINE_boolean('save_images', False, 'snaphot an image of each build step in the render')
     flags.DEFINE_enum('heuristic', 'HNet_batch', ['Manhattan', 'Mean', 'HNet', 'HNet_batch', 'MeanTopK'],
                       'type of heuristic function to use in search')

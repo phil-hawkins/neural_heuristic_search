@@ -652,9 +652,9 @@ class BreakableTrussState(TrussState):
     def is_valid(self):
         return not self.is_broken()
 
-    # @property
-    # def is_complete(self):
-    #     return bool(self._span_remaining == 0 and self.get_unbraced_dist(check_damaged=True) == 0)
+    @property
+    def is_complete(self):
+        return bool(self._span_remaining == 0 and self.get_unbraced_dist(check_damaged=True) == 0)
 
     @property
     def cannon_str(self):
