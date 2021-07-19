@@ -36,6 +36,7 @@ flags.DEFINE_integer('max_scenarios', 0, 'upper bound on the number of scenarios
 flags.DEFINE_string('result_file', './logs/results.json', 'output file for results')
 flags.DEFINE_string('planner_file', None, 'planner list file path')
 flags.DEFINE_integer('batch_size', 32, 'network input batch size')
+flags.DEFINE_boolean('add_obstacles', False, 'add obstacles to the space')
 
 #@profile(precision=4)
 def main(_argv):
@@ -65,7 +66,7 @@ def main(_argv):
         for planner, heuristic, model_config, checkpoint in planners:
             model_checkpoint = None if model_config is None else "models/{}.pt".format(checkpoint)
             stats = plan_path(
-                start_state=BreakableTrussState.from_config(start_config),
+                start_state=BreakableTrussState.from_config(start_config, add_obstacles=FLAGS.add_obstacles),
                 greedy=(planner == 'Greedy'),
                 heuristic=heuristic,
                 render=False,
