@@ -15,7 +15,8 @@ class View():
         'damaged_node' : ((1, 0, 0), (35/256, 22/256, 138/256)),
         'target' : (0, 0, 0),
         'spoke' : (0, 0, 0),
-        'support' : ((93/256, 125/256, 57/256), (57/256, 82/256, 29/256))
+        'support' : ((93/256, 125/256, 57/256), (57/256, 82/256, 29/256)),
+        'obstacle' : (1., 0.5, 0.5)
     }
     node_radius = 0.1
     pin_h = node_radius * 3
@@ -34,16 +35,11 @@ class View():
         self._window_still_open = True
 
     def show(self, state):
-        # show target
-        t = rendering.Transform(translation=state.target_geometry())
-        xc, yc = x1, y1 = x2, y2 = state.target_geometry()
-        o = (3*self.node_radius)
-        x1 -= o
-        y1 -= o
-        x2 += o
-        y2 += o
-        self._viewer.draw_line((xc, y1), (xc, y2), color=self.body_colours['target'])
-        self._viewer.draw_line((x1, yc), (x2, yc), color=self.body_colours['target'])
+        # show obstacles
+        for o in state.obstacles_geometry():
+            opos, radius = o
+            t = rendering.Transform(translation=opos)
+            self._viewer.draw_circle(radius=radius, color=self.body_colours['obstacle']).add_attr(t)
 
         # show spokes
         for epos in state.edge_geometry():
@@ -68,6 +64,20 @@ class View():
             colour = self.body_colours['damaged_node'] if damaged else self.body_colours['node']
             self._viewer.draw_polygon(v=hub_shape, color=colour[0]).add_attr(t)
             self._viewer.draw_polygon(v=hub_shape, color=colour[1], filled=False, linewidth=2).add_attr(t)
+
+        # show target
+        t = rendering.Transform(translation=state.target_geometry())
+        xc, yc = x1, y1 = x2, y2 = state.target_geometry()
+        o = (3*self.node_radius)
+        x1 -= o
+        y1 -= o
+        x2 += o
+        y2 += o
+        self._viewer.draw_line((xc, y1), (xc, y2), color=self.body_colours['target'])
+        self._viewer.draw_line((x1, yc), (x2, yc), color=self.body_colours['target'])
+        # draw pin
+        self._viewer.draw_polygon(v=pin_shape, color=self.body_colours['support'][0]).add_attr(t)
+        self._viewer.draw_polygon(v=pin_shape, color=self.body_colours['support'][1], filled=False, linewidth=2).add_attr(t)
 
         self._window_still_open = self._viewer.render()
 

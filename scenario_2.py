@@ -21,7 +21,7 @@ def render_build(view, path, state, save_images=False, stay_open=True):
 
     for i, action in enumerate(path):
         logging.debug("Doing action {}".format(action))
-        sleep(0.5)
+        sleep(0.2)
         state.action_update(action)
         view.show(state)
         
@@ -55,7 +55,7 @@ def save_log_file(file_path, stats):
 def plan_path(start_state, greedy, heuristic, render,  
             checkpoint=None, model_config=None, batch_size=32,
             eps=1000, save_images=False,
-            timeout=0, return_examples=False, pretrained_net=None):
+            timeout=0, return_examples=False, pretrained_net=None, show_search=False):
     """
     Runs the search to plan an action path for the truss build
 
@@ -92,7 +92,7 @@ def plan_path(start_state, greedy, heuristic, render,
             Node.nnet.load_state_dict(checkpoint['state_dict'])
 
     root = Node(state=start_state.clone())
-    end_state, stats = search(root, eps=eps)
+    end_state, stats = search(root, eps=eps, view=view if show_search else None)
     
     if timeout and stats['time'] > timeout:
         logging.debug("Timed out after {} seconds".format(stats['time']))
@@ -108,7 +108,7 @@ def plan_path(start_state, greedy, heuristic, render,
     damaged_state = end_state._state.clone()
     view.show(damaged_state)
     root = Node(state=damaged_state.clone())
-    _, stats = search(root, eps=eps)
+    _, stats = search(root, eps=eps, view=view if show_search else None)
     render_build(view, stats['path'], damaged_state, save_images=save_images)
 
 def main(_argv):
@@ -118,7 +118,7 @@ def main(_argv):
     config = random.choice(TrussState.get_start_configs(FLAGS.target_dist))
     checkpoint = "models/{}.pt".format(FLAGS.model_config) if FLAGS.checkpoint is None else FLAGS.checkpoint
     plan_path(
-        start_state=BreakableTrussState.from_config(config),
+        start_state=BreakableTrussState.from_config(config, add_obstacles=FLAGS.add_obstacles),
         greedy=FLAGS.greedy,
         heuristic=FLAGS.heuristic,
         render=FLAGS.render,
@@ -126,7 +126,8 @@ def main(_argv):
         model_config=FLAGS.model_config,
         batch_size=FLAGS.batch_size,
         eps=FLAGS.eps,
-        save_images=FLAGS.save_images
+        save_images=FLAGS.save_images,
+        show_search=FLAGS.show_search
     )
 
 if __name__ == '__main__':
@@ -139,6 +140,8 @@ if __name__ == '__main__':
     flags.DEFINE_string('model_config', "LGC", 'nueral net configutation arguments')
     flags.DEFINE_integer('batch_size', 32, 'network input batch size')
     flags.DEFINE_boolean('render', True, 'display the build steps')
+    flags.DEFINE_boolean('show_search', False, 'show each search state')
+    flags.DEFINE_boolean('add_obstacles', False, 'add obstacles to the space')
     flags.DEFINE_string('checkpoint', None, 'nueral net parameter checkpoint')
     flags.DEFINE_boolean('greedy', True, 'use greedy search')
     flags.DEFINE_boolean('save_images', False, 'snaphot an image of each build step in the render')

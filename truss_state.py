@@ -77,6 +77,16 @@ class NodeMap():
         return self._env_to_state[node_ndx], slot
 
 
+class Obstacle():
+    def __init__(self, row, col, radius=0.5):
+        self.row = row
+        self.col = col
+        self.radius = radius
+
+    def is_obstructing(self, row, col):
+        # TODO: add radius checking
+        return (self.row == row) and (self.col == col)
+
 class TrussState():
     """
     Holds an abstract truss state for use in the tree search
@@ -94,7 +104,7 @@ class TrussState():
     reflection_map = {0:3, 1:2, 2:1, 3:0, 4:5, 5:4}
 
 
-    def __init__(self, nodes, edge_index, edge_slots, target, origin):
+    def __init__(self, nodes, edge_index, edge_slots, target, origin, obstacles=[]):
         """
         Args:
             nodes: list of Node objects
@@ -102,6 +112,7 @@ class TrussState():
             edge_slots: edge directions as slot_offset indicies in range [0,5], list corresponds to edge_index order
             target: target Node object
             origin: ndarray shape [2] as (x, y) in environment world coordinates
+            obstacle: list of obstacles (Obstacle) that the truss may not colocate
         """
         self._target = target
         self._nodes = nodes
@@ -111,7 +122,8 @@ class TrussState():
         self._strut_locs = {(edge_index[0,i], edge_index[1,i]):i for i in range(edge_index.shape[1])}
         self._edge_slots = edge_slots
         self._origin = origin
-        self._free_node_slots = [[True] * 6 for _ in range(len(nodes))]
+        self._obstacles = obstacles
+        self._free_node_slots = [self._get_unobstructed_slots(n.loc) for n in self._nodes]
         for i in range(len(self._edge_slots)):
             node_idx = edge_index[0,i]
             slot_idx = self._edge_slots[i]
@@ -234,6 +246,15 @@ class TrussState():
             target position in world coordinates: (x, y)
         """
         return self.__class__.state_to_env(self._origin, self._target.row, self._target.col)
+
+    def obstacles_geometry(self):
+        """
+        gets the position and shape of the obstacles
+
+        Returns:
+            list of obstacle positions and radii in world coordinates: [(x, y, radius), ...]
+        """
+        return [(self.__class__.state_to_env(self._origin, o.row, o.col), o.radius) for o in self._obstacles]
 
     @classmethod
     def _target_polar(self, node_loc, target):
@@ -450,6 +471,19 @@ class TrussState():
         self._free_node_slots[node_idx_b][slot_idx_b] = False
 
 
+    def _get_unobstructed_slots(self, node_loc):
+        """
+        finds node slots that can accept a strut not obstructed by an obstacle
+
+        Args:
+            node_loc: (row, col) location of the node in the truss
+        """
+        def is_unobstructed(row, col):
+            return not any([o.is_obstructing(row, col) for o in self._obstacles])
+
+        return [is_unobstructed(node_loc[0]+so[0], node_loc[1]+so[1]) for so in self.slot_offset]
+
+
     def _add_node(self, node_loc):
         """
         Adds a new node to the truss. This adds the node to _nodes table, updates the
@@ -466,7 +500,8 @@ class TrussState():
             self._span_remaining = node.target_dist
         self._nodes.append(node)
         self._node_locs[node_loc] = len(self._nodes) - 1
-        self._free_node_slots.append([True]*6)
+        # mark as free any slots that can accept a strut not obstructed by an obstacle
+        self._free_node_slots.append(self._get_unobstructed_slots(node_loc))
 
         return len(self._nodes) - 1
 
@@ -501,15 +536,15 @@ class BreakableTrussState(TrussState):
     """
     max_unbraced_struts = 1
 
-    def __init__(self, nodes, edge_index, edge_slots, target, origin):
-        super().__init__(nodes, edge_index, edge_slots, target, origin)
+    def __init__(self, nodes, edge_index, edge_slots, target, origin, obstacles=[]):
+        super().__init__(nodes, edge_index, edge_slots, target, origin, obstacles)
 
     @classmethod
     def from_truss_state(cls, ts):
         return cls(ts._nodes, ts._edge_index, ts._edge_slots, ts._target, ts._origin)
 
     @classmethod
-    def from_config(cls, config):
+    def from_config(cls, config, add_obstacles=False):
         """
         Create a TrussState object from config params
 
@@ -541,7 +576,15 @@ class BreakableTrussState(TrussState):
                 target=target
             ))
 
-        return BreakableTrussState(nodes, edge_index, edge_strut_slots, target, origin)
+        obstacles = []
+        if add_obstacles:
+            row = nodes[0].row + target.row // 2
+            col = nodes[0].col + target.col // 2
+            #obstacles.append(Obstacle(row=row, col=col))
+            obstacles.append(Obstacle(row=row, col=col-1))
+            obstacles.append(Obstacle(row=row, col=col+1))
+
+        return BreakableTrussState(nodes, edge_index, edge_strut_slots, target, origin, obstacles)
 
     @classmethod
     def create_env(cls, target_dist):
@@ -654,7 +697,13 @@ class BreakableTrussState(TrussState):
 
     @property
     def is_complete(self):
-        return bool(self._span_remaining == 0 and self.get_unbraced_dist(check_damaged=True) == 0)
+        complete = False
+        if self._span_remaining == 0:
+            braced_nodes = self.get_braced_nodes(check_damaged=True)
+            target_idx = self._node_locs[self._target.loc]
+            complete = target_idx in braced_nodes
+
+        return complete
 
     @property
     def cannon_str(self):
@@ -699,10 +748,16 @@ class BreakableTrussState(TrussState):
         def is_damageable(n):
             return not n.damaged and not n.pinned and n.target_dist is not None and n.target_dist > 0
 
-        nodes = [n for n in self._nodes if is_damageable(n)]
-        if nodes:
-            dn = random.choice(nodes)
+        nodes_idx = [i for i, n in enumerate(self._nodes) if is_damageable(n)]
+        if nodes_idx:
+            dni = random.choice(nodes_idx)
+            dn = self._nodes[dni]
             dn.damaged = True
+            self._obstacles.append(Obstacle(row=dn.row, col=dn.col))
+            for ni in range(self.num_nodes):
+                us = self._get_unobstructed_slots(self._nodes[ni].loc)
+                fs = self._free_node_slots[ni] 
+                self._free_node_slots[ni] = [u and f for u, f in zip(us,fs)]
             return True
         else:
             return False

@@ -218,7 +218,7 @@ def memory_used():
     return psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2
 
 
-def search(root, epsilon=0., eps=10000, max_memory=16, template=None):
+def search(root, epsilon=0., eps=10000, max_memory=16, template=None, view=None):
     """
     The A* path search
 
@@ -236,6 +236,8 @@ def search(root, epsilon=0., eps=10000, max_memory=16, template=None):
 
     while open_set:
         current = heapq.heappop(open_set)
+        if view:
+            view.show(current._state)
 
         if current.is_goal or is_out_of_resources() or timer.is_timed_out:
             stats = {
