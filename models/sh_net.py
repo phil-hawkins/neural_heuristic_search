@@ -20,13 +20,13 @@ class ConvWrapper(Module):
 class GATConvW(ConvWrapper):
     def __init__(self, args):
         super().__init__(args)
-        self.conv = GATConv(in_channels=args['node_dims'], out_channels=args['node_dims'])
+        self.conv = GATConv(in_channels=args['node_dims'], out_channels=args['node_dims'], heads=args['heads'])
 
 
 class GMMConvW(ConvWrapper):
     def __init__(self, args):
         super().__init__(args)
-        self.conv = GMMConv(in_channels=args['node_dims'], out_channels=args['node_dims'], dim=1, kernel_size=args['kernel_size'])
+        self.conv = GMMConv(in_channels=args['node_dims'], out_channels=args['node_dims'], dim=1, kernel_size=args['kernel_size'], separate_gaussians=args['separate_gaussians'])
 
     def forward(self, x, edge_index, edge_slot, edge_attr, u, batch):
         # form psuedocoordinates as polar angle fron the center node

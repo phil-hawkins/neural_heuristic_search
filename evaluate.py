@@ -28,14 +28,14 @@ from truss_state import BreakableTrussState
 
 FLAGS = flags.FLAGS
 flags.DEFINE_boolean('debug', False, 'show debug logging messages')
-flags.DEFINE_integer('target_dist', 3, 'triangular lattice manhattan distance to target')
+flags.DEFINE_integer('target_dist', 1, 'triangular lattice manhattan distance to target')
 flags.DEFINE_float('epsilon', 0., 'probability of random node vs greedy selection in search')
 flags.DEFINE_integer('timeout', 0, 'end path planning after this many seconds or no limmit if 0')
 flags.DEFINE_integer('eps', 0, 'upper bound on the number of expansions to do per stage. Unlimmited if 0')
-flags.DEFINE_integer('max_scenarios', 0, 'upper bound on the number of scenarios to run. Unlimmited if 0')
+flags.DEFINE_integer('max_scenarios', 25, 'upper bound on the number of scenarios to run. Unlimmited if 0')
 flags.DEFINE_string('result_file', './logs/results.json', 'output file for results')
 flags.DEFINE_string('planner_file', None, 'planner list file path')
-flags.DEFINE_integer('batch_size', 32, 'network input batch size')
+flags.DEFINE_integer('batch_size', 128, 'network input batch size')
 flags.DEFINE_boolean('add_obstacles', False, 'add obstacles to the space')
 
 #@profile(precision=4)
@@ -48,7 +48,26 @@ def main(_argv):
             config = json.load(f)
             planners = config['planners']
     else:
-        planners = [("Greedy", "HNet_batch", "LGC", "LGC")]
+        planners = [
+            [
+                "Greedy",
+                "HNet_batch",
+                "GIN",
+                "GIN"
+            ],
+            [
+                "Greedy", 
+                "Manhattan",
+                None,
+                None
+            ],
+            [
+                "Greedy", 
+                "Mean",
+                None,
+                None
+            ]
+        ]
 
     results = []
 

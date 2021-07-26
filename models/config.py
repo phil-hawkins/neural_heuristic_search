@@ -28,6 +28,7 @@ args = {
     },
     'GAT': {
         'graph_conv': GATConvW,
+        'heads': 4
     },
     'GCN': {
         'graph_conv': GCNConvW,
@@ -40,6 +41,7 @@ args = {
     'MoNet': {
         'graph_conv': GMMConvW,
         'kernel_size': 50,
+        'separate_gaussians': True
     },
     'PatchySan': {
         'nnet': PatchySan,

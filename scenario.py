@@ -117,7 +117,11 @@ def main(_argv):
     if FLAGS.debug:
         logging.set_verbosity(logging.DEBUG)
     BreakableTrussState.max_unbraced_struts = FLAGS.max_unsupported_struts
-    config = random.choice(TrussState.get_start_configs(FLAGS.target_dist))
+    if FLAGS.scene_config_file:
+        with open(FLAGS.scene_config_file, "r") as f:
+            config = json.load(f)
+    else:
+        config = random.choice(TrussState.get_start_configs(FLAGS.target_dist))
     checkpoint = "models/{}.pt".format(FLAGS.model_config) if FLAGS.checkpoint is None else FLAGS.checkpoint
     plan_path(
         start_state=BreakableTrussState.from_config(config, add_obstacles=FLAGS.add_obstacles),
@@ -138,7 +142,8 @@ if __name__ == '__main__':
     flags.DEFINE_integer('eps', 0, 'number of expansions to do per stage. Unlimmited if 0')
     flags.DEFINE_integer('target_dist', 2, 'triangular lattice manhattan distance to target')
     flags.DEFINE_string('log_file_path', "./logs/astar_log.json", 'result statistics log file')
-    flags.DEFINE_string('model_config', "LGC", 'nueral net configutation arguments')
+    flags.DEFINE_string('model_config', "GIN", 'nueral net configutation arguments')
+    flags.DEFINE_string('scene_config_file', None, 'scene configuration file')
     flags.DEFINE_integer('batch_size', 32, 'network input batch size')
     flags.DEFINE_boolean('render', True, 'display the build steps')
     flags.DEFINE_boolean('show_search', False, 'show each search state')

@@ -5,3 +5,5 @@
 evaluation/table_gen.py
 data/*.pkl
 logs/**
+test.py
+tables/**
