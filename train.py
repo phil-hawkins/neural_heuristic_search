@@ -15,7 +15,7 @@ from models.utils import AverageMeter
 from graph_data import GraphDataBatch
 
 FLAGS = flags.FLAGS
-flags.DEFINE_string('config', 'GIN', 'configuration parameter set')
+flags.DEFINE_string('config', 'GAT', 'configuration parameter set')
 flags.DEFINE_string('note', '', 'comment to add to run logs')
 flags.DEFINE_string('root_log', './logs/hnet', 'root directory of tensorboard logging')
 flags.DEFINE_string('job_id', '', 'process id for batch job')
