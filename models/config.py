@@ -28,7 +28,7 @@ args = {
     },
     'GAT': {
         'graph_conv': GATConvW,
-        'heads': 4
+        'heads': 5
     },
     'GCN': {
         'graph_conv': GCNConvW,

@@ -20,7 +20,10 @@ class ConvWrapper(Module):
 class GATConvW(ConvWrapper):
     def __init__(self, args):
         super().__init__(args)
-        self.conv = GATConv(in_channels=args['node_dims'], out_channels=args['node_dims'], heads=args['heads'])
+        self.conv = GATConv(
+            in_channels=args['node_dims'] // args['heads'], 
+            out_channels=args['node_dims'] // args['heads'], 
+            heads=args['heads'])
 
 
 class GMMConvW(ConvWrapper):
