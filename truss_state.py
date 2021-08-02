@@ -470,6 +470,18 @@ class TrussState():
         self._free_node_slots[node_idx_a][slot_idx_a] = False
         self._free_node_slots[node_idx_b][slot_idx_b] = False
 
+    # def _remove_strut(self, node_idx_a, node_idx_b, slot_idx_a):
+    #     """
+    #     Removes a strut from the truss. This is the reverse of _add_strut.
+
+    #     Args:
+    #         node_idx_a: index of node in nodes table
+    #         node_idx_b: index of node in nodes table
+    #         slot_idx_a: index of slot in node a that strut is removed from
+    #     """
+    #     assert self._free_node_slots[node_idx_a][slot_idx_a] == False, "no strut exists for this node and slot"
+
+
 
     def _get_unobstructed_slots(self, node_loc):
         """
@@ -771,3 +783,4 @@ class BreakableTrussState(TrussState):
         span_remaining = min([self._nodes[n_i].target_dist for n_i in bn_ndx])
 
         return span_remaining
+

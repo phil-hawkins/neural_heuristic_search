@@ -9,7 +9,7 @@ import numpy as np
 
 from truss_state import TrussState, BreakableTrussState
 from models.config import args
-from astar import AStarNode, GreedyNode, search
+from bfs import AStarNode, GreedyNode, search
 from view import View
 
 FLAGS = flags.FLAGS

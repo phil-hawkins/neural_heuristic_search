@@ -54,18 +54,6 @@ def main(_argv):
                 "HNet_batch",
                 "GIN",
                 "GIN"
-            ],
-            [
-                "Greedy", 
-                "Manhattan",
-                None,
-                None
-            ],
-            [
-                "Greedy", 
-                "Mean",
-                None,
-                None
             ]
         ]
 
@@ -111,6 +99,7 @@ def main(_argv):
             stats['model_config'] = model_config
             stats['checkpoint'] = checkpoint
             stats['distance'] = FLAGS.target_dist
+            stats['obstacles'] = FLAGS.add_obstacles
             stats['scenario'] = i
             results.append(stats)
 

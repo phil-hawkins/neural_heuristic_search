@@ -8,7 +8,7 @@ import pyglet
 
 from truss_state import TrussState, BreakableTrussState
 from models.config import args
-from astar import AStarNode, GreedyNode, search
+from bfs import AStarNode, GreedyNode, search
 from view import View
 
 FLAGS = flags.FLAGS
@@ -150,6 +150,7 @@ if __name__ == '__main__':
     flags.DEFINE_boolean('add_obstacles', False, 'add obstacles to the space')
     flags.DEFINE_string('checkpoint', None, 'nueral net parameter checkpoint')
     flags.DEFINE_boolean('greedy', True, 'use greedy search')
+    flags.DEFINE_boolean('cleanup', False, 'post processing to remove unnecessary components')
     flags.DEFINE_boolean('save_images', False, 'snaphot an image of each build step in the render')
     flags.DEFINE_enum('heuristic', 'HNet_batch', ['Manhattan', 'Mean', 'HNet', 'HNet_batch', 'MeanTopK'],
                       'type of heuristic function to use in search')

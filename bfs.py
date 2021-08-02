@@ -8,7 +8,7 @@ import psutil
 from models.utils import Timer
 from graph_data import GraphDataBatch
 
-class AStarNode():
+class BFSNode():
     """
     A node in the A* search space
     """
@@ -56,7 +56,7 @@ class AStarNode():
         """
         Estimated node search value
         """
-        return self._g + self._h
+        raise NotImplementedError()
 
     @property
     def is_goal(self):
@@ -208,9 +208,21 @@ class AStarNode():
                 logging.debug("     h: {}".format(n._h))
 
 
-class GreedyNode(AStarNode):
+
+class AStarNode(BFSNode):
     @property
     def f(self):
+        """
+        Estimated node search value
+        """
+        return self._g + self._h
+
+class GreedyNode(BFSNode):
+    @property
+    def f(self):
+        """
+        Estimated node search value
+        """
         return self._h
 
 
@@ -220,7 +232,8 @@ def memory_used():
 
 def search(root, epsilon=0., eps=10000, max_memory=16, template=None, view=None):
     """
-    The A* path search
+    Best first search. The exact search type depends on the type of root node.
+
 
     Returns:
         the leaf node that reaches the goal
