@@ -122,6 +122,8 @@ def main(_argv):
             config = json.load(f)
     else:
         config = random.choice(TrussState.get_start_configs(FLAGS.target_dist))
+        with open('logs/config.json', "w") as f:
+            json.dump(config, f)
     checkpoint = "models/{}.pt".format(FLAGS.model_config) if FLAGS.checkpoint is None else FLAGS.checkpoint
     plan_path(
         start_state=BreakableTrussState.from_config(config, add_obstacles=FLAGS.add_obstacles),
