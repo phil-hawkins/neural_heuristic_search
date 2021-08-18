@@ -1,9 +1,9 @@
 ## Neural Heuristic Search
 
 ### Introduction
-This repository is based on our paper: Modular Construction Planning using Graph Neural Network Heuristic Search
+This repository is based on the paper: Modular Construction Planning using Graph Neural Network Heuristic Search
 
-The code uses [PyTorch](https://pytorch.org/) and [PyTorch Geometric](https://pytorch-geometric.readthedocs.io/en/latest/).
+[PyTorch](https://pytorch.org/) and [PyTorch Geometric](https://pytorch-geometric.readthedocs.io/en/latest/) are used to code the heuristic network.
 
 ### Environment Setup
 To create the environment with conda...
@@ -37,8 +37,14 @@ python build_training.py --target_dist 3 --train_example_path "./data/train_d3.p
 
 ### Training the Heuristic Network
 
+Training the GIN based network:
 ```
 python train.py --config GIN --epochs 2000 --batch_size 32 --lr 1e-3 --lr_patience 100 --train_data_search './data/train_d*.pkl'
+```
+
+Training the GAT based network:
+```
+python train.py --config GAT --epochs 2000 --batch_size 32 --lr 1e-3 --lr_patience 100 --train_data_search './data/train_d*.pkl'
 ```
 
 ### Visualising Truss Construction Planning
