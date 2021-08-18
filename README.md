@@ -43,13 +43,27 @@ python train.py --config GIN --epochs 2000 --batch_size 32 --lr 1e-3 --lr_patien
 
 ### Visualising Truss Construction Planning
 The planning search and final construction plan can be viewed for a scenario
+
+
+using a minimum Manhattan distance heuristic:
+```
+python scenario.py --target_dist 3 --heuristic Manhattan --show_search
 ```
 
+using a mean Manhattan distance heuristic:
 ```
+python scenario.py --target_dist 5 --heuristic Mean --show_search
+```
+
+using the GIN heuristic network:
+```
+python scenario.py --target_dist 5 --model_config GIN --show_search
+```
+
 
 ### Evaluation
 
-To evaluate 25 random scenarios of 5 span trusses:
+Planning construction for 25 random scenarios with 5 span trusses:
 
 ```
 python evaluate.py --planner_file demo_eval_planners.json --target_dist 5 --eps 1000 --max_scenarios 25 --batch_size 64 
