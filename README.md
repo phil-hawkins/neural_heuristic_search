@@ -5,6 +5,11 @@ This repository is based on the paper: Modular Construction Planning using Graph
 
 [PyTorch](https://pytorch.org/) and [PyTorch Geometric](https://pytorch-geometric.readthedocs.io/en/latest/) are used to code the heuristic network.
 
+<img src="images/shnet.png"
+     alt="Search heuristic network"
+     style="float: margin-bottom: 50px;" />
+
+
 ### Environment Setup
 To create the environment with conda...
 
@@ -48,6 +53,11 @@ python train.py --config GAT --epochs 2000 --batch_size 32 --lr 1e-3 --lr_patien
 ```
 
 ### Visualising Truss Construction Planning
+
+<img src="images/truss.png"
+     alt="Generated truss"
+     style="float: margin-bottom: 50px;" />
+
 The planning search and final construction plan can be viewed for a scenario
 
 
