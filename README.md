@@ -5,7 +5,7 @@ This repository is based on the paper: Modular Construction Planning using Graph
 
 [PyTorch](https://pytorch.org/) and [PyTorch Geometric](https://pytorch-geometric.readthedocs.io/en/latest/) are used to code the heuristic network.
 
-<img src="images/shnet.png"
+<img src="images/SHnet.png"
      alt="Search heuristic network"
      style="float: margin-bottom: 50px;" />
 
