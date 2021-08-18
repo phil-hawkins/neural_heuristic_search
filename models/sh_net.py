@@ -2,9 +2,8 @@ import os,sys
 sys.path.insert(0, os.path.abspath('.'))
 import torch
 from torch.nn import Module, ModuleList, Linear, ReLU
-from torch_geometric.nn import GATConv, GCNConv, GINConv, GMMConv, GlobalAttention
-from torch_scatter import scatter_mean
-from models.utils import MLP, scatter_slots
+from torch_geometric.nn import GATConv, GINConv, GlobalAttention
+from models.utils import MLP
 from math import pi
 
 
