@@ -1,0 +1,28 @@
+{
+    "planners": [
+        [
+            "Greedy",
+            "HNet_batch",
+            "GAT",
+            "GAT"
+        ],
+        [
+            "Greedy",
+            "HNet_batch",
+            "GIN",
+            "GIN"
+        ],
+        [
+            "Greedy", 
+            "Manhattan",
+            null,
+            null
+        ],
+        [
+            "Greedy", 
+            "Mean",
+            null,
+            null
+        ]
+    ]
+}
